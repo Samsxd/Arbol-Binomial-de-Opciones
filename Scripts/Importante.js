@@ -148,8 +148,7 @@ function CalcularOtrosDatos(parametros) {
       columna.style.height = "40px";
       columna.style.padding = "1px";
       if (filaMatriz[j] === 1) {
-        let valorF = (filaPrima[contador].toFixed(4));
-        columna.innerHTML = `<div><button class="res-circle" onclick="GenerarAlerta('S:${filaSpot[contador]} F:${valorF}');"></button></div>`;
+        columna.innerHTML = `<div><button class="res-circle" onclick="GenerarAlerta('S:${filaSpot[contador].toFixed(4)} F:${filaPrima[contador].toFixed(4)}');"></button></div>`;
         contador++;
       }
 
