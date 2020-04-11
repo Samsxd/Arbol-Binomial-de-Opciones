@@ -31,8 +31,8 @@ function algo() {
   }
   else
     GenerarAlertaError(mensaje);
-    let prima = document.getElementById("prima");
-    prima.style.display = "none";
+  let prima = document.getElementById("prima");
+  prima.style.display = "none";
 
 }
 function GenerarAlertaError(mensaje) {
@@ -41,8 +41,18 @@ function GenerarAlertaError(mensaje) {
     title: 'Cancelado ',
     text: 'Los campos estan mal digilenciados!',
     footer: mensaje
-  })
+  });
 }
+
+function GenerarAlerta(mensaje) {
+  Swal.fire({
+    icon: 'success',
+    title: 'Resultados ',
+    text: mensaje,
+    footer: ""
+  });
+}
+
 
 function GenerarAlertaExito(parametros) {
   const swalWithBootstrapButtons = Swal.mixin({
@@ -67,8 +77,8 @@ function GenerarAlertaExito(parametros) {
         'Generado! (>w<)',
         'Tus datos han sido procesados',
         'success'
-        )
-        CalcularOtrosDatos(parametros);
+      )
+      CalcularOtrosDatos(parametros);
     } else if (
       result.dismiss === Swal.DismissReason.cancel
     ) {
@@ -87,7 +97,7 @@ function GenerarAlertaExito(parametros) {
 
 function validarMaximo(campo, nombre) {
   if (campo > 2)
-    return `${nombre} no pude ser mayor que 2\n`;
+    return `${nombre} no puede ser mayor que 2\n`;
   else
     return "";
 }
@@ -138,8 +148,8 @@ function CalcularOtrosDatos(parametros) {
       columna.style.height = "40px";
       columna.style.padding = "1px";
       if (filaMatriz[j] === 1) {
-
-        columna.innerHTML = `<div title="S:${filaSpot[contador]} F:${filaPrima[contador]}" class="res-circle"></div>`;
+        let valorF = (filaPrima[contador].toFixed(4));
+        columna.innerHTML = `<div><button class="res-circle" onclick="GenerarAlerta('S:${filaSpot[contador]} F:${valorF}');"></button></div>`;
         contador++;
       }
 
@@ -148,7 +158,7 @@ function CalcularOtrosDatos(parametros) {
   }
   let prima = document.getElementById("prima");
   let temp = matrixPrimas[0];
-  prima.innerText = `Prima(F): ${temp[0]}`;
+  prima.innerText = `Prima(F): ${temp[0].toFixed(4)}`;
   prima.style.display = "block";
 }
 
