@@ -27,22 +27,24 @@ function algo() {
   mensaje += validarCamposSelect(parametros.pos, "La posicion está mal ");
 
   if (mensaje == "") {
-    GenerarAlertaExito();
-    CalcularOtrosDatos(parametros);
+    GenerarAlertaExito(parametros);
   }
   else
     GenerarAlertaError(mensaje);
+    let prima = document.getElementById("prima");
+    prima.style.display = "none";
+
 }
 function GenerarAlertaError(mensaje) {
   Swal.fire({
     icon: 'error',
-    title: 'ばか -_- ',
+    title: 'Cancelado ',
     text: 'Los campos estan mal digilenciados!',
     footer: mensaje
   })
 }
 
-function GenerarAlertaExito() {
+function GenerarAlertaExito(parametros) {
   const swalWithBootstrapButtons = Swal.mixin({
     customClass: {
       confirmButton: 'btn btn-success',
@@ -65,11 +67,15 @@ function GenerarAlertaExito() {
         'Generado! (>w<)',
         'Tus datos han sido procesados',
         'success'
-      )
+        )
+        CalcularOtrosDatos(parametros);
     } else if (
-      /* Read more about handling dismissals below */
       result.dismiss === Swal.DismissReason.cancel
     ) {
+      let tablita = document.getElementById("tablita");
+      tablita.innerHTML = "";
+      let prima = document.getElementById("prima");
+      prima.style.display = "none";
       swalWithBootstrapButtons.fire(
         'Cancelado!',
         'Tus datos no serán procesados :(',
@@ -140,7 +146,12 @@ function CalcularOtrosDatos(parametros) {
     }
     contador = 0;
   }
+  let prima = document.getElementById("prima");
+  let temp = matrixPrimas[0];
+  prima.innerText = `Prima(F): ${temp[0]}`;
+  prima.style.display = "block";
 }
+
 
 function crearMatriz(parametros, matrix) {
   parametros.size = parametros.pasos * 3;
