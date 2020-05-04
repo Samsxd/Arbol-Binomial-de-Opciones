@@ -2,19 +2,28 @@
 <html lang="es">
 
 <head>
-    <title>Árbol binomial</title>
-
-
+    <title>Calculadora De Opciones</title>
+    <!--componente estadistico-->
+    <script src="https://cdn.jsdelivr.net/npm/jstat@latest/dist/jstat.min.js"></script>
     <!-- Icono de la pestaña -->
     <link rel="icon" href="iconos/favicon.ico">
     <!-- Alertas personalizadas  -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@9"></script>
     <!-- JavaScript  -->
     <script src="Scripts/Importante.js" type="text/javascript"></script>
+    <script src="Scripts/Operaciones.js" type="text/javascript"></script>
+    <script src="Scripts/Validaciones.js" type="text/javascript"></script>
+
+    <!-- Graficas  -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.css">
+    <script src="https://cdn.jsdelivr.net/chartist.js/latest/chartist.min.js"></script>
+
     <!-- Boostrap css  -->
     <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"
         integrity="sha384-Vkoo8x4CGsO3+Hhxv8T/Q5PaXtkKtu6ug5TOeNV6gBiFeWPGFN9MuhOf23Q9Ifjh" crossorigin="anonymous">
     <meta charset="UTF-8">
+
+    <!-- estilos css  -->
     <style>
         .res-circle {
             width: 100%;
@@ -37,63 +46,123 @@
 
 </head>
 
-<body data-spy="scroll" data-target="#contenedor" style=" position: relative; background-color:black;">
-    <h1 style="text-align: center; font-family: initial; color:ivory;">Valoración de Opciones</h1>
+<body data-spy="scroll" data-target="#contenedor" onload="HabilitarFormulario()"
+    style=" position: relative; background-color:black; ">
+    <!-- Encabezado -->
+    <div class="container-fluid" style="padding-block-end: 10px;">
+        <nav class="navbar navbar-dark navbar-expand-lg  bg-dark">
+            <a class="navbar-brand" href="#">Calculadora de Opciones</a>
+            <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarText"
+                aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarText">
+                <ul class="navbar-nav mr-auto">
+                    <li class="nav-item">
+                        <a id="rbl" onClick="Operaciones.Redireccionar('rbl')" class="nav-link">Árbol Binomial</a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="bs" onClick="Operaciones.Redireccionar('bs')" class="nav-link">BlackSholes</a>
+                    </li>
+                    <li class="nav-item">
+                        <a id="gfcs" onClick="Operaciones.Redireccionar('gfcs')" class="nav-link">Gráficas</a>
+                    </li>
+                </ul>
+            </div>
+        </nav>
+    </div>
+    <!--formularios  -->
     <div class="container-fluid" style="background-color:black; display: inline-flex;">
         <div id="contenedor" class="container-fluid row align-items-start">
             <div class="col-4">
+                <!--Foumulario principal  -->
                 <div id="data-content" class="container-fluid card">
-                    <div>
-                        <h3 style="text-align: center; font-family: initial;">Parámetros</h3>
-                        <div class="input-group input-group-sm mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text" id="inputGroup-sizing-sm">Spot</span>
-                            </div>
-                            <input required type="number" id="spot" min="0.1" step="0.0001" class="form-control"
-                                aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+                    <!--Titulo  -->
+                    <h3 style="text-align: center; font-family: initial;">Parámetros</h3>
+
+                    <!--graficas  -->
+                    <div id="graficas-div" class="input-group input-group-sm mb-3" style="display: none;">
+                        <div class="input-group-prepend">
+                            <label class="input-group-text" for="inputGroupSelect01">Tipo gráfica</label>
                         </div>
-                        <div class="input-group input-group-sm mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text" id="inputGroup-sizing-sm">Strike</span>
-                            </div>
-                            <input required type="number" id="strike" min="0.1" step="0.0001" class="form-control"
-                                aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
-                        </div>
-                        <div class="input-group input-group-sm mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text" id="inputGroup-sizing-sm">u</span>
-                            </div>
-                            <input required type="number" id="u" min="0.1" max="2" step="0.0001" class="form-control"
-                                aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text" id="inputGroup-sizing-sm">d</span>
-                            </div>
-                            <input required type="number" id="d" min="0.1" max="2" step="0.0001" class="form-control"
-                                aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
-                        </div>
+                        <select onchange="CambioDeGrafica()" class="custom-select" id="grafica">
+                            <option selected>Seleccionar...</option>
+                            <option value="1">writing a coverage call</option>
+                            <option value="2">grafica perrona2</option>
+                            <option value="3">grafica perrona3</option>
+                            <option value="4">grafica perrona4</option>
+                        </select>
                     </div>
-                    <div class="input-group input-group-sm mb-3">
+                    <!--Spot  -->
+                    <div id="spot-div" class="input-group input-group-sm mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">Spot</span>
+                        </div>
+                        <input required type="number" id="spot" min="0.1" step="0.0001" class="form-control"
+                            aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+                    </div>
+
+                    <!--Strike  -->
+                    <div id="strike-div" class="input-group input-group-sm mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">Strike</span>
+                        </div>
+                        <input required type="number" id="strike" min="0.1" step="0.0001" class="form-control"
+                            aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+                    </div>
+
+                    <!-- u && d -->
+                    <div id="u_d-div" class="input-group input-group-sm mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">u</span>
+                        </div>
+                        <input required type="number" id="u" min="0.1" max="2" step="0.0001" class="form-control"
+                            aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">d</span>
+                        </div>
+                        <input required type="number" id="d" min="0.1" max="2" step="0.0001" class="form-control"
+                            aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+                    </div>
+
+                    <!--T  -->
+                    <div id="t-div" class="input-group input-group-sm mb-3">
                         <div class="input-group-prepend">
                             <span class="input-group-text" id="inputGroup-sizing-sm">T(Tiempo:meses)</span>
                         </div>
                         <input required type="number" id="T" min="0.1" step="0.0001" class="form-control"
                             aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
                     </div>
-                    <div class="input-group input-group-sm mb-3">
+
+                    <!--Pasos  -->
+                    <div id="pasos-div" class="input-group input-group-sm mb-3">
                         <div class="input-group-prepend">
                             <span class="input-group-text" id="inputGroup-sizing-sm">Número de pasos</span>
                         </div>
                         <input required type="number" id="pasos" min="0.1" max="100" step="0.0001" class="form-control"
                             aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
                     </div>
-                    <div class="input-group input-group-sm mb-3">
+
+                    <!--Tasa  -->
+                    <div id="tasa-div" class="input-group input-group-sm mb-3">
                         <div class="input-group-prepend">
                             <span class="input-group-text" id="inputGroup-sizing-sm">Tasa libre de riesgo(acc)</span>
                         </div>
                         <input required type="number" id="tasa" min="0.1" step="0.0001" class="form-control"
                             aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
                     </div>
-                    <div class="input-group input-group-sm mb-3">
+
+                    <!--Volatilidad  -->
+                    <div id="volatilidad-div" class="input-group input-group-sm mb-3">
+                        <div class="input-group-prepend">
+                            <span class="input-group-text" id="inputGroup-sizing-sm">Volatilidad</span>
+                        </div>
+                        <input required type="number" id="volatilidad" min="0.1" step="0.0001" class="form-control"
+                            aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+                    </div>
+
+                    <!--Opción  -->
+                    <div id="opcion-div" class="input-group input-group-sm mb-3">
                         <div class="input-group-prepend">
                             <label class="input-group-text" for="inputGroupSelect01">Tipo de opción</label>
                         </div>
@@ -103,7 +172,9 @@
                             <option value="2">Americana</option>
                         </select>
                     </div>
-                    <div class="input-group input-group-sm mb-3">
+
+                    <!--Posición  -->
+                    <div id="posicion-div" class="input-group input-group-sm mb-3">
                         <div class="input-group-prepend">
                             <label class="input-group-text" for="inputGroupSelect01">Posición</label>
                         </div>
@@ -112,16 +183,24 @@
                             <option value="1">Largo Put</option>
                             <option value="2">Largo Call</option>
                             <option value="3">Corto Call</option>
-                            <option value="3">Corto Put</option>
-                        </select>  
+                            <option value="4">Corto Put</option>
+                        </select>
                     </div>
+
+                    <!--Prima  -->
                     <div class="input-group input-group-sm mb-3" style="display: grid;">
                         <div class="inputGroup-sizing-sm">
-                            <span class="input-group-text" id="prima" style="display: none;" ></span>
+                            <span class="input-group-text" id="prima" style="display: none;"></span>
                         </div>
                     </div>
-                    <button type="button" onclick="algo()" class="btn btn-warning btn-sm btn-block">Generar</button>
 
+                    <!--Boton calcular  -->
+                    <div class="container-fluid" style="padding-block-end: 10px;">
+                        <button type="button" onclick="Calcular()"
+                            class="btn btn-warning btn-sm btn-block">Calcular</button>
+                    </div>
+
+                    <!--Pie de página  -->
                     <footer class="bg-dark rounded-top">
                         <div class="row justify-content-md-center" style="color: whitesmoke;">
                             <div class="container-fluid" style="display:inline">
@@ -133,18 +212,41 @@
                             </div>
                         </div>
                     </footer>
+                    <!--Termina formulario principal -->
                 </div>
             </div>
+            <!--contenedor del segundo formulario  -->
             <div id="global" class="container-fluid col-8 bg-light rounded-top">
+                <!--Grafica  -->
+                <div id="graficador-div" class="ct-chart ct-perfect-fourth"></div>
+                <!--d1  -->
+                <div id="d1-div" class="input-group input-group-sm mb-3" style="display: none;">
+                    <div class="inputGroup-sizing-sm">
+                        <span class="input-group-text" id="d1" ;></span>
+                    </div>
+                </div>
+                <!--d2  -->
+                <div id="d2-div" class="input-group input-group-sm mb-3" style="display: none;">
+                    <div class="inputGroup-sizing-sm">
+                        <span class="input-group-text" id="d2" ;></span>
+                    </div>
+                </div>
+                <!--posicion  -->
+                <div id="put-call-div" class="input-group input-group-sm mb-3" style="display: none;">
+                    <div class="inputGroup-sizing-sm">
+                        <span class="input-group-text" id="put-call" ;></span>
+                    </div>
+                </div>
+
                 <table id="tablita" class="container-fluid table table-dark"
                     style="margin-top: 10px; margin-bottom: 10px; table-layout: fixed;">
                     <tbody>
                     </tbody>
                 </table>
             </div>
+            <!--Termina Contenedor  -->
         </div>
     </div>
-
 </body>
 
 </html>

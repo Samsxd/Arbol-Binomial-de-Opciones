@@ -1,40 +1,107 @@
+// campos a ocultar para el formulario de blacksoles
+const camposBlackSholes = ["pasos-div", "u_d-div", "opcion-div"];
+// campos a ocultar para las graficas
+const camposOcultosGrafica = ["pasos-div", "u_d-div", "opcion-div", "spot-div", "strike-div",
+  "t-div", "pasos-div", "tasa-div", "volatilidad-div", "opcion-div", "posicion-div"];
 
-function algo() {
+const camposGraficas = ["spot-div", "strike-div",];
+
+// objeto que permite crear alertas con botones personalizados
+const alertaPerzonalizada = Swal.mixin({
+  customClass: {
+    confirmButton: 'btn btn-success',
+    cancelButton: 'btn btn-danger'
+  },
+  buttonsStyling: true
+});
+
+// permite habilitar los campos necesarios según el menu de carga
+function HabilitarFormulario() {
+  let formulario = Operaciones.ObtenerParametro();
+  if (formulario == "") {
+    Validaciones.OcultarCampo("contenedor");
+    return;
+  }
+  document.getElementById(formulario).classList.add("active");
+
+  if (formulario === "bs") {
+    camposBlackSholes.forEach(campo => {
+      Validaciones.OcultarCampo(campo);
+    });
+  } else if (formulario === "gfcs") {
+    document.getElementById("graficas-div").style.display = "flex";
+    camposOcultosGrafica.forEach(campo => {
+      Validaciones.OcultarCampo(campo);
+    });
+  }
+}
+
+function CambioDeGrafica() {
+  let selectGrafica = document.getElementById("grafica");
+  let opcion = selectGrafica.options[selectGrafica.selectedIndex].text;
+
+  if (opcion === "Seleccionar...")
+    return;
+
+  camposGraficas.forEach(campo => {
+    Validaciones.MostrarCampo(campo);
+  });
+
+}
+
+/**
+ * funcion que esta ligada a los botones 
+ */
+function Calcular() {
   let parametros = new Object();
-  const decimal = 10000;
-  let mensaje = "";
-  parametros.spot = Math.round(document.getElementById("spot").value * decimal) / decimal;
-  mensaje += validarCamposNumericos(parametros.spot, "El spot está mal, ");
-  parametros.strike = Math.round(document.getElementById("strike").value * decimal) / decimal;
-  mensaje += validarCamposNumericos(parametros.strike, "El strike está mal, ");
-  parametros.u = Math.round(document.getElementById("u").value * decimal) / decimal;
-  mensaje += validarCamposNumericos(parametros.u, "La u está mal, ");
-  mensaje += validarMaximo(u, "u");
-  parametros.d = Math.round(document.getElementById("d").value * decimal) / decimal;
-  mensaje += validarCamposNumericos(parametros.d, "La d está mal, ");
-  mensaje += validarMaximo(d, "d");
-  parametros.T = Math.round(document.getElementById("T").value * decimal) / decimal;
-  mensaje += validarCamposNumericos(parametros.T, "El tiempo está mal, ");
-  parametros.pasos = Math.round(document.getElementById("pasos").value * decimal) / decimal;
-  mensaje += validarCamposNumericos(parametros.pasos, "El numero de pasos está mal, ");
-  parametros.tasa = Math.round(document.getElementById("tasa").value * decimal) / decimal;
-  mensaje += validarCamposNumericos(parametros.tasa, "La tasa está mal, ");
-  let selectOpcion = document.getElementById("opcion");
-  parametros.opcion = selectOpcion.options[selectOpcion.selectedIndex].text;
-  mensaje += validarCamposSelect(parametros.opcion, "La opcion está mal, ");
-  let selectPos = document.getElementById("pos");
-  parametros.pos = selectPos.options[selectPos.selectedIndex].text;
-  mensaje += validarCamposSelect(parametros.pos, "La posicion está mal ");
+  let decimal = 10000; //precisión de los números decimales de los parametros de entrada.
 
+  /* los llamados parametros. es donde se guarda el valor, se divide por el decimal para obtener 
+  4 cifras decimales maximas en el ingreso de los parametros por parte del usuario.
+  mensaje, es la alerta que sale en pantalla si el usuario ingresa mal el parametro */
+
+  let mensaje = "";
+  let formulario = Operaciones.ObtenerParametro();
+  // validar los campos del formulario
+  switch (formulario) {
+    case "rbl":
+      mensaje = Validaciones.ValidarFormluarioArbol(parametros, decimal);
+      break;
+    case "bs":
+      mensaje = Validaciones.ValidarFormluarioBlackSholes(parametros, decimal);
+      break;
+    case "gfcs":
+      mensaje = Validaciones.ValidarFormluarioGraficas(parametros, decimal);
+      break;
+    default:
+      mensaje = "Formulurio no implementado";
+      break;
+  }
+
+  /*si el mensaje esta vacio significa que el formulario fue correctamente diligenciado*/
   if (mensaje == "") {
-    GenerarAlertaExito(parametros);
+
+    switch (formulario) {
+      case "rbl":
+        GenerarAlertaExitoArbol(parametros);
+        break;
+      case "bs":
+        GenerarAlertaExitoBlackSholes(parametros);
+        break;
+      case "gfcs":
+        GenerarGrafica(parametros);
+        break;
+      default:
+        break;
+    }
   }
   else
     GenerarAlertaError(mensaje);
-  let prima = document.getElementById("prima");
-  prima.style.display = "none";
 
+  Validaciones.OcultarCampo("prima");
 }
+
+// alerta con el mensaje de error 
 function GenerarAlertaError(mensaje) {
   Swal.fire({
     icon: 'error',
@@ -44,7 +111,8 @@ function GenerarAlertaError(mensaje) {
   });
 }
 
-function GenerarAlerta(mensaje) {
+// alerta para los nodos del árbol
+function GenerarAlertaArbol(mensaje) {
   Swal.fire({
     icon: 'success',
     title: 'Resultados ',
@@ -53,39 +121,31 @@ function GenerarAlerta(mensaje) {
   });
 }
 
+function GenerarAlertaExitoBlackSholes(parametros) {
 
-function GenerarAlertaExito(parametros) {
-  const swalWithBootstrapButtons = Swal.mixin({
-    customClass: {
-      confirmButton: 'btn btn-success',
-      cancelButton: 'btn btn-danger'
-    },
-    buttonsStyling: true
-  });
-
-  swalWithBootstrapButtons.fire({
+  alertaPerzonalizada.fire({
     title: '¿Estas seguro?',
-    text: "Se va a generar el Arbolito",
+    text: "Se van a generar los datos",
     icon: 'warning',
     showCancelButton: true,
     confirmButtonText: 'Si, generar!',
     cancelButtonText: 'No, cancelar!',
     reverseButtons: true
   }).then((result) => {
+
     if (result.value) {
-      swalWithBootstrapButtons.fire(
+      CalcularBlackSholes(parametros);
+      alertaPerzonalizada.fire(
         'Generado! (>w<)',
-        'Tus datos han sido procesados',
+        `ok`,
         'success'
       )
-      CalcularOtrosDatos(parametros);
     } else if (
       result.dismiss === Swal.DismissReason.cancel
     ) {
-      let tablita = document.getElementById("tablita");
-      tablita.innerHTML = "";
-      let prima = document.getElementById("prima");
-      prima.style.display = "none";
+      document.getElementById("tablita").innerHTML = "";
+      Validaciones.OcultarCampo("prima");
+
       swalWithBootstrapButtons.fire(
         'Cancelado!',
         'Tus datos no serán procesados :(',
@@ -95,28 +155,42 @@ function GenerarAlertaExito(parametros) {
   });
 }
 
-function validarMaximo(campo, nombre) {
-  if (campo > 2)
-    return `${nombre} no puede ser mayor que 2\n`;
-  else
-    return "";
+function GenerarAlertaExitoArbol(parametros) {
+
+  alertaPerzonalizada.fire({
+    title: '¿Estas seguro?',
+    text: "Se va a generar el Arbolito",
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Si, generar!',
+    cancelButtonText: 'No, cancelar!',
+    reverseButtons: true
+
+  }).then((result) => {
+    if (result.value) {
+      alertaPerzonalizada.fire(
+        'Generado! (>w<)',
+        'Tus datos han sido procesados',
+        'success'
+      )
+      GenerarArbol(parametros);
+    } else if (
+      result.dismiss === Swal.DismissReason.cancel
+    ) {
+      let tablita = document.getElementById("tablita");
+      tablita.innerHTML = "";
+      Validaciones.OcultarCampo("prima");
+      alertaPerzonalizada.fire(
+        'Cancelado!',
+        'Tus datos no serán procesados :(',
+        'error'
+      )
+    }
+  });
 }
 
-function validarCamposNumericos(campo, msg) {
-  if (campo > 0 && campo >= 0.1)
-    return "";
-  else
-    return msg + "\n";
-}
-
-function validarCamposSelect(campo, msg) {
-  if (campo != "Seleccionar...")
-    return "";
-  else
-    return msg + "\n";
-}
-
-function CalcularOtrosDatos(parametros) {
+//
+function GenerarArbol(parametros) {
   parametros.deltaT = (parametros.T / parametros.pasos) / 12;
   parametros.i = Math.exp(-(parametros.tasa / 100) * parametros.deltaT);
   parametros.ProbabilidadAlza = ((Math.exp((parametros.tasa / 100) * parametros.deltaT) - parametros.d) / (parametros.u - parametros.d));
@@ -124,17 +198,20 @@ function CalcularOtrosDatos(parametros) {
 
   const matrixGrafica = new Array();
   const matrixSpots = new Array();
-  crearMatriz(parametros, matrixGrafica);
-  CrearEstructura(parametros, matrixGrafica);
-  CalcularSpots(matrixSpots, parametros);
+  Operaciones.crearMatriz(parametros, matrixGrafica);
+  Operaciones.CrearEstructura(parametros, matrixGrafica);
+  Operaciones.CalcularSpots(matrixSpots, parametros);
   const matrixPrimas = new Array(parametros.middle);
+
   if (parametros.opcion === "Europea")
-    CalcularPrimaEuropea(matrixSpots, matrixPrimas, parametros);
+    Operaciones.CalcularPrimaEuropea(matrixSpots, matrixPrimas, parametros);
   else
-    CalcularPrimaAmericana(matrixSpots, matrixPrimas, parametros);
+    Operaciones.CalcularPrimaAmericana(matrixSpots, matrixPrimas, parametros);
+
   let contador = 0;
   let tablita = document.getElementById("tablita");
   tablita.innerHTML = "";
+  // recorrer la matriz para pintarla 
   for (let i = 0; i < matrixGrafica.length; i++) {
     let fila = tablita.insertRow();
     fila.style.width = "40px";
@@ -142,19 +219,27 @@ function CalcularOtrosDatos(parametros) {
     let filaMatriz = matrixGrafica[i];
     let filaSpot = matrixSpots[i];
     let filaPrima = matrixPrimas[i];
+    // recorro cada fila
     for (let j = 0; j < filaMatriz.length; j++) {
       let columna = fila.insertCell();
       columna.style.width = "40px";
       columna.style.height = "40px";
       columna.style.padding = "1px";
+      // si es 1 es un nodo del árbol
       if (filaMatriz[j] === 1) {
-        columna.innerHTML = `<div><button class="res-circle" onclick="GenerarAlerta('S:${filaSpot[contador].toFixed(4)} F:${filaPrima[contador].toFixed(4)}');"></button></div>`;
+        // se inserta codigo HTML con el nodo y el evento click con los valores de cada nodo
+        columna.innerHTML = `<div>
+        <button class="res-circle" 
+        onclick="GenerarAlertaArbol('S:${filaSpot[contador].toFixed(4)} F:${filaPrima[contador].toFixed(4)}');">
+        </button>
+        </div>`;
         contador++;
       }
 
     }
     contador = 0;
   }
+  // habilitar el campo con el valor de la prima(F)
   let prima = document.getElementById("prima");
   let temp = matrixPrimas[0];
   prima.innerText = `Prima(F): ${temp[0].toFixed(4)}`;
@@ -162,143 +247,82 @@ function CalcularOtrosDatos(parametros) {
 }
 
 
-function crearMatriz(parametros, matrix) {
-  parametros.size = parametros.pasos * 3;
-  parametros.middle = Math.floor(parametros.size / 2);
-  parametros.middle = parametros.pasos + 1 === parametros.middle ? parametros.middle : parametros.pasos + 1;
-  let size_ = parametros.size % 2 === 0 ? 1 : 0;
-  let size = parametros.size % 2 === 0 ? 2 : 3;
+// 
+function CalcularBlackSholes(parametros) {
+  let p1 = Math.log(parametros.spot / parametros.strike);
+  let p2 = (parametros.tasa / 100) + ((parametros.volatilidad / 100) ** 2) / 2;
+  let p3 = (parametros.volatilidad / 100) * Math.sqrt(parametros.T / 12);
+  parametros.deltaT = (parametros.T) / 12;
+  parametros.i = Math.exp(-(parametros.tasa / 100) * parametros.deltaT);
+  parametros.d1 = (p1 + p2 * parametros.T / 12) / p3;
+  parametros.d2 = parametros.d1 - p3;
+  parametros.Nd1 = jStat.normal.cdf(parametros.d1, 0, 1);
+  parametros.Nd2 = jStat.normal.cdf(parametros.d2, 0, 1);
+  parametros.Nmenosd1 = 1 - parametros.Nd1;
+  parametros.Nmenosd2 = 1 - parametros.Nd2;
+  parametros.call = parametros.spot * parametros.Nd1 - parametros.strike * parametros.i * parametros.Nd2;
+  parametros.put = parametros.strike * parametros.i * parametros.Nmenosd2 - parametros.spot * parametros.Nmenosd1;
 
-  let tempMx = new Array();
-  for (let i = 0; i < parametros.middle; i++) {
-    for (let j = 0; j < parametros.size + size_ - parametros.pasos + size; j++) {
-      tempMx.push('*');
-    }
-    matrix.push(tempMx);
-    tempMx = [];
-  }
+  Validaciones.MostrarAgregarCampo("d1", `d1: ${parametros.d1.toFixed(4)}`);
+  Validaciones.MostrarAgregarCampo("d2", `d2: ${parametros.d2.toFixed(4)}`);
+
+  if (parametros.pos.includes("Call"))
+    Validaciones.MostrarAgregarCampo("put-call", `call: ${parametros.call.toFixed(4)}`);
+  else
+    Validaciones.MostrarAgregarCampo("put-call", `put: ${parametros.put}`);
 }
 
-function CrearEstructura(parametros, matrix) {
-  for (let i = 0; i < matrix.length; i++) {
-    const row = matrix[i];
-    if (i > 0) {
-      for (let j = 0; j < row.length; j++) {
-        if (j === (parametros.middle + i) || j === (parametros.middle - i)) {
-          row[j] = 1;
+function GenerarGrafica(parametros) {
+  const vector = Operaciones.CalcularLabeles(parametros, 1.00);
+  const pendiente = Operaciones.CalcularPendiente(vector);
+  const pyg = Operaciones.CalcularPyg(vector, parametros);
+
+  let chart = new Chartist.Line('.ct-chart', {
+    // Naming the series with the series object array notation
+    series: [{
+      name: 'series-1',
+      data: pendiente,
+    }, {
+      name: 'series-2',
+      data: pyg,
+    }, {
+      name: 'series-3',
+      data: Operaciones.SumarVectores(pendiente, pyg, parametros.strike),
+    }]
+  }, {
+    fullWidth: true,
+    // Within the series options you can use the series names
+    // to specify configuration that will only be used for the
+    // specific series.
+    series: {
+      'series-1': {
+        //lineSmooth: Chartist.Interpolation.step()
+      },
+      'series-2': {
+        //lineSmooth: Chartist.Interpolation.simple(),
+        showArea: true
+      },
+      'series-3': {
+        showPoint: false
+      }
+    }
+  }, [
+    // You can even use responsive configuration overrides to
+    // customize your series configuration even further!
+    ['screen and (max-width: 500px)', {
+      series: {
+        'series-1': {
+          lineSmooth: Chartist.Interpolation.none()
+        },
+        'series-2': {
+          lineSmooth: Chartist.Interpolation.none(),
+          showArea: false
+        },
+        'series-3': {
+          lineSmooth: Chartist.Interpolation.none(),
+          showPoint: true
         }
       }
-    } else {
-      row[parametros.middle] = 1;
-    }
-  }
-  Completar(matrix, parametros);
-}
-
-function Completar(matrix, parametros) {
-  for (let i = 0; i < matrix.length; i++) {
-    const row = matrix[i];
-    if (i > 0) {
-      for (let j = (parametros.middle - i); j < (parametros.middle + i); j += 2) {
-        if (j > (parametros.middle - i)) {
-          row[j] = 1;
-        }
-      }
-    }
-  }
-}
-function CalcularSpots(matrix, parametros) {
-  let tempMx = new Array();
-  tempMx.push(parametros.spot);
-  matrix.push(tempMx);
-  tempMx = [];
-
-  for (let i = 1; i < parametros.middle; i++) {
-    for (let j = 0; j < i + 1; j++) {
-      let valor = parametros.spot * (parametros.d ** (i - j)) * (parametros.u ** (j));
-      tempMx.push(valor);
-
-    }
-    matrix.push(tempMx);
-    tempMx = [];
-  }
-}
-function CalcularPrimaEuropea(matrixSpots, matrixPrimas, parametros) {
-  let contador = 1;
-  let tempMx = new Array();
-  let SpotTemporal = matrixSpots[matrixSpots.length - contador];
-  for (let i = 0; i < SpotTemporal.length; i++) {
-    switch (parametros.pos) {
-      case "Largo Call":
-      case "Corto Call":
-        let valor = Math.max((SpotTemporal[i] - parametros.strike), 0);
-        tempMx.push(valor);
-        break;
-      case "Largo Put":
-      case "Corto Put":
-        let valor1 = Math.max((parametros.strike - SpotTemporal[i]), 0);
-        tempMx.push(valor1);
-        break;
-      default:
-        break;
-    }
-
-  }
-  matrixPrimas[parametros.middle - contador] = tempMx;
-  contador++;
-  tempMx = [];
-  for (let i = matrixSpots.length - contador; i > -1; i--) {
-    let temporal = matrixSpots[i];
-    let anterior = matrixPrimas[i + 1];
-    for (let j = 0; j < temporal.length; j++) {
-      let valor = parametros.i * ((anterior[j] * parametros.ProbabilidadBaja) + (anterior[j + 1] * parametros.ProbabilidadAlza));
-      tempMx.push(valor);
-    }
-    matrixPrimas[parametros.middle - contador] = tempMx;
-    contador++;
-    tempMx = [];
-  }
-
-
-}
-function CalcularPrimaAmericana(matrixSpots, matrixPrimas, parametros) {
-  let contador = 1;
-  let tempMx = new Array();
-  let SpotTemporal = matrixSpots[matrixSpots.length - contador];
-  for (let i = 0; i < SpotTemporal.length; i++) {
-    switch (parametros.pos) {
-      case "Largo Call":
-      case "Corto Call":
-        let valor = Math.max((SpotTemporal[i] - parametros.strike), 0);
-        tempMx.push(valor);
-        break;
-      case "Largo Put":
-      case "Corto Put":
-        let valor1 = Math.max((parametros.strike - SpotTemporal[i]), 0);
-        tempMx.push(valor1);
-        break;
-      default:
-        break;
-    }
-
-  }
-  matrixPrimas[parametros.middle - contador] = tempMx;
-  contador++;
-  tempMx = [];
-  for (let i = matrixSpots.length - contador; i > -1; i--) {
-    let temporal = matrixSpots[i];
-    let anterior = matrixPrimas[i + 1];
-    for (let j = 0; j < temporal.length; j++) {
-      let valor = parametros.i * ((anterior[j] * parametros.ProbabilidadBaja) + (anterior[j + 1] * parametros.ProbabilidadAlza));
-      let valor2 = 0;
-      if (parametros.pos.includes("Call"))
-        valor2 = Math.max((temporal[j] - parametros.strike), 0);
-      else
-        valor2 = Math.max((parametros.strike - temporal[j]), 0);
-      tempMx.push(Math.max(valor, valor2));
-    }
-    matrixPrimas[parametros.middle - contador] = tempMx;
-    contador++;
-    tempMx = [];
-  }
+    }]
+  ]);
 }
