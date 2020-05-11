@@ -1,18 +1,51 @@
 const Validaciones = {};
 
-// realiza las validaciones del formulario de las gráficas
-Validaciones.ValidarFormluarioGraficas = function (parametros, decimal) {
+// Realiza las validaciones del formulario de las gráficas
+Validaciones.ValidarFormluarioGraficasSyK = function (parametros, decimal) {
     let mensaje = "";
     parametros.spot = Math.round(document.getElementById("spot").value * decimal) / decimal;
     mensaje += Validaciones.validarCamposNumericos(parametros.spot, "El spot está mal, ");
 
-    parametros.strike = Math.round(document.getElementById("strike").value * decimal) / decimal;
-    mensaje += Validaciones.validarCamposNumericos(parametros.strike, "El strike está mal, ");
+    parametros.strike1 = Math.round(document.getElementById("strike").value * decimal) / decimal;
+    mensaje += Validaciones.validarCamposNumericos(parametros.strike1, "El strike está mal, ");
 
     return mensaje;
 };
 
-// realiza las validaciones del formulario de blacksholes
+// Realiza las validaciones del formulario de las gráficas
+Validaciones.ValidarFormluarioGraficasSpreadsCombi = function (parametros, decimal) {
+    let mensaje = "";
+    parametros.spot = Math.round(document.getElementById("spot_").value * decimal) / decimal;
+    mensaje += Validaciones.validarCamposNumericos(parametros.spot, "El spot está mal, ");
+
+    parametros.strike1 = Math.round(document.getElementById("strike1").value * decimal) / decimal;
+    mensaje += Validaciones.validarCamposNumericos(parametros.strike1, "El strike1 está mal, ");
+
+    parametros.strike2 = Math.round(document.getElementById("strike2").value * decimal) / decimal;
+    mensaje += Validaciones.validarCamposNumericos(parametros.strike2, "El strike2 está mal, ");
+
+    return mensaje;
+};
+
+// Realiza las validaciones del formulario de las gráficas
+Validaciones.ValidarFormluarioGraficasMariposas = function (parametros, decimal) {
+    let mensaje = "";
+    parametros.spot = Math.round(document.getElementById("spot_").value * decimal) / decimal;
+    mensaje += Validaciones.validarCamposNumericos(parametros.spot, "El spot está mal, ");
+
+    parametros.strike1 = Math.round(document.getElementById("strike1").value * decimal) / decimal;
+    mensaje += Validaciones.validarCamposNumericos(parametros.strike1, "El strike1 está mal, ");
+
+    parametros.strike2 = Math.round(document.getElementById("strike2").value * decimal) / decimal;
+    mensaje += Validaciones.validarCamposNumericos(parametros.strike2, "El strike2 está mal, ");
+
+    parametros.strike3 = Math.round(document.getElementById("strike3").value * decimal) / decimal;
+    mensaje += Validaciones.validarCamposNumericos(parametros.strike3, "El strike3 está mal, ");
+
+    return mensaje;
+};
+
+// Realiza las validaciones del formulario de blacksholes
 Validaciones.ValidarFormluarioBlackSholes = function (parametros, decimal) {
     let mensaje = "";
     parametros.spot = Math.round(document.getElementById("spot").value * decimal) / decimal;
@@ -37,7 +70,7 @@ Validaciones.ValidarFormluarioBlackSholes = function (parametros, decimal) {
     return mensaje;
 };
 
-// realiza las validaciones del formulario del arbol binomial
+// Realiza las validaciones del formulario del arbol binomial
 Validaciones.ValidarFormluarioArbol = function (parametros, decimal) {
     let mensaje = "";
     parametros.spot = Math.round(document.getElementById("spot").value * decimal) / decimal;
@@ -77,14 +110,15 @@ Validaciones.ValidarFormluarioArbol = function (parametros, decimal) {
     return mensaje;
 };
 
-// valida que el campo no sea mayor a 2
+// Valida que el campo no sea mayor a 2
 Validaciones.validarMaximo = function (campo, nombre) {
     if (campo > 2)
         return `${nombre} no puede ser mayor que 2\n`;
     else
         return "";
 };
-// valida si un campo sea positivo y no es cero
+
+// Valida si un campo sea positivo y no es cero
 Validaciones.validarCamposNumericos = function (campo, msg) {
     if (campo > 0 && campo >= 0.1)
         return "";
@@ -92,7 +126,7 @@ Validaciones.validarCamposNumericos = function (campo, msg) {
         return msg + "\n";
 };
 
-// valida que los campos select tengan una opción
+// Valida que los campos select tengan una opción
 Validaciones.validarCamposSelect = function (campo, msg) {
     if (campo != "Seleccionar...")
         return "";
@@ -100,18 +134,36 @@ Validaciones.validarCamposSelect = function (campo, msg) {
         return msg + "\n";
 }
 
-// oculta un campo dado su id
+// Oculta un campo dado su id (el id se encuentra en index.html)
 Validaciones.OcultarCampo = function (campo) {
     document.getElementById(campo).style.display = "none";
 };
-
-Validaciones.MostrarCampo = function (campo) {
-    document.getElementById(campo).style.display = "flex";
+// Muestra un campo dado su id (el id se encuentra en index.html)
+Validaciones.MostrarCampo = function (campo, display) {
+    if (display)
+        document.getElementById(campo).style.display = display;
+    else
+        document.getElementById(campo).style.display = "flex";
 };
 
-// muestra un campo dado su id y le asigna un valor
-Validaciones.MostrarAgregarCampo = function (campo, valor){
+// Muestra un campo dado su id y le asigna un valor
+Validaciones.MostrarAgregarCampo = function (campo, valor) {
     document.getElementById(`${campo}-div`).style.display = "grid";
     document.getElementById(campo).innerText = valor;
 };
+//muestra el nombre de la linea
+Validaciones.MostrarNombreColor = function (linea1, linea2, linea3, linea4) {
+    document.getElementById("linea1").innerText = linea1;
+    document.getElementById("linea2").innerText = linea2;
+    document.getElementById("linea3").innerText = linea3;
+    if (linea4)
+        document.getElementById("linea4").innerText = linea4;
+}
+//Borra los nombres de los otros formularios
+Validaciones.BorrarNombres = function () {
+    document.getElementById("linea1").innerText = "";
+    document.getElementById("linea2").innerText = "";
+    document.getElementById("linea3").innerText = "";
+    document.getElementById("linea4").innerText = "";
+}
 

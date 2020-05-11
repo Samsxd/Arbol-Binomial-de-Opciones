@@ -1,4 +1,4 @@
-// campos a ocultar para el formulario de blacksoles
+// campos a ocultar para el formulario de blacksholes
 const camposBlackSholes = ["pasos-div", "u_d-div", "opcion-div"];
 // campos a ocultar para las graficas
 const camposOcultosGrafica = ["pasos-div", "u_d-div", "opcion-div", "spot-div", "strike-div",
@@ -30,39 +30,82 @@ function HabilitarFormulario() {
     });
   } else if (formulario === "gfcs") {
     document.getElementById("graficas-div").style.display = "flex";
+    document.getElementById("graficador-div").style.display = "flex";
+    document.getElementById("grafica").value = "0";
     camposOcultosGrafica.forEach(campo => {
       Validaciones.OcultarCampo(campo);
     });
   }
-}
+};
 
+// Realiza el cambio de grafica de acuerdo al tipo de grafica que se desea ver
 function CambioDeGrafica() {
   let selectGrafica = document.getElementById("grafica");
-  let opcion = selectGrafica.options[selectGrafica.selectedIndex].text;
+  //Permite habilitar los campos necesarios para el tipo de grafica ingresada
+  switch (selectGrafica.selectedIndex) {
+    //spot y strike para opciones y activo subyacente (trading con opciones y subyacente)
+    case 1: 
+    case 2:
+    case 3:
+    case 4:
+      camposGraficas.forEach(campo => {
+        Validaciones.MostrarCampo(campo);
+      });
+      Validaciones.OcultarCampo("grafica-spreads-combi");
+      Validaciones.OcultarCampo("lineaMariposa");
+      Validaciones.BorrarNombres();
+      Validaciones.OcultarCampo("graficas-label");
+      break;
+    //Spot y strike x2 para spreads y combinaciones 
+    case 5:
+    case 6:
+    case 7:
+    case 8:
+    case 11:
+    case 12:
+    case 13:
+    case 14:
+      camposGraficas.forEach(campo => {
+        Validaciones.OcultarCampo(campo);
+      });
+      Validaciones.MostrarCampo("grafica-spreads-combi", "block");
+      Validaciones.OcultarCampo("strike mariposa");
+      Validaciones.OcultarCampo("lineaMariposa");
+      Validaciones.BorrarNombres();
+      Validaciones.OcultarCampo("graficas-label");
+      break;
+    //Spot y strike x3 para mariposas 
+    case 9:
+    case 10:
+      camposGraficas.forEach(campo => {
+        Validaciones.OcultarCampo(campo);
+      });
+      Validaciones.MostrarCampo("grafica-spreads-combi", "block");
+      Validaciones.MostrarCampo("strike mariposa");
+      Validaciones.MostrarCampo("lineaMariposa");
+      Validaciones.BorrarNombres();
+      Validaciones.OcultarCampo("graficas-label");
+      break;
+    default:
+      camposGraficas.forEach(campo => {
+        Validaciones.OcultarCampo(campo);
+      });
+      Validaciones.OcultarCampo("grafica-spreads-combi");
+      Validaciones.OcultarCampo("lineaMariposa");
+      Validaciones.OcultarCampo("graficas-label");
+      Validaciones.BorrarNombres();
+      break;
+  }
+};
 
-  if (opcion === "Seleccionar...")
-    return;
-
-  camposGraficas.forEach(campo => {
-    Validaciones.MostrarCampo(campo);
-  });
-
-}
-
-/**
- * funcion que esta ligada a los botones 
- */
+// Funcion que esta ligada a los botones 
 function Calcular() {
   let parametros = new Object();
   let decimal = 10000; //precisión de los números decimales de los parametros de entrada.
 
-  /* los llamados parametros. es donde se guarda el valor, se divide por el decimal para obtener 
-  4 cifras decimales maximas en el ingreso de los parametros por parte del usuario.
-  mensaje, es la alerta que sale en pantalla si el usuario ingresa mal el parametro */
-
   let mensaje = "";
   let formulario = Operaciones.ObtenerParametro();
-  // validar los campos del formulario
+  // validar los campos del formulario, confirma que los campos fueron llenado scon exito
   switch (formulario) {
     case "rbl":
       mensaje = Validaciones.ValidarFormluarioArbol(parametros, decimal);
@@ -71,7 +114,19 @@ function Calcular() {
       mensaje = Validaciones.ValidarFormluarioBlackSholes(parametros, decimal);
       break;
     case "gfcs":
-      mensaje = Validaciones.ValidarFormluarioGraficas(parametros, decimal);
+      let selectGrafica = document.getElementById("grafica");
+      //Selecciona las graficas trading con opciones y subyacente
+      if (selectGrafica.selectedIndex === 0)
+      mensaje = "Escoge al menos un tipo de grafica"
+      else if (selectGrafica.selectedIndex > 0 && selectGrafica.selectedIndex < 5)
+        mensaje = Validaciones.ValidarFormluarioGraficasSyK(parametros, decimal);
+      //Selecciona las graficas para las mariposas
+      else if (selectGrafica.selectedIndex > 8 && selectGrafica.selectedIndex < 11)
+        mensaje = Validaciones.ValidarFormluarioGraficasMariposas(parametros, decimal);
+      // selecciona las graficas para las combinaciones
+      else
+        mensaje = Validaciones.ValidarFormluarioGraficasSpreadsCombi(parametros, decimal);
+
       break;
     default:
       mensaje = "Formulurio no implementado";
@@ -89,7 +144,7 @@ function Calcular() {
         GenerarAlertaExitoBlackSholes(parametros);
         break;
       case "gfcs":
-        GenerarGrafica(parametros);
+        GenerarAlertaExitoGraficas(parametros);
         break;
       default:
         break;
@@ -99,7 +154,7 @@ function Calcular() {
     GenerarAlertaError(mensaje);
 
   Validaciones.OcultarCampo("prima");
-}
+};
 
 // alerta con el mensaje de error 
 function GenerarAlertaError(mensaje) {
@@ -109,7 +164,7 @@ function GenerarAlertaError(mensaje) {
     text: 'Los campos estan mal digilenciados!',
     footer: mensaje
   });
-}
+};
 
 // alerta para los nodos del árbol
 function GenerarAlertaArbol(mensaje) {
@@ -119,8 +174,48 @@ function GenerarAlertaArbol(mensaje) {
     text: mensaje,
     footer: ""
   });
-}
+};
 
+// alerta para las graficas
+function GenerarAlertaExitoGraficas(parametros) {
+  let vectores = {};
+  //Mensaje para generar o no el arbol, mensaje que recuerda como deben ser los parametros a ingresar
+  crearVectoresGraficas(parametros, document.getElementById("grafica").selectedIndex, vectores);
+  alertaPerzonalizada.fire({
+    title: '¿Estas seguro?',
+    text: vectores.mensaje,
+    icon: 'warning',
+    showCancelButton: true,
+    confirmButtonText: 'Si, generar!',
+    cancelButtonText: 'No, cancelar!',
+    reverseButtons: true
+    //Mensaje si se quiere genera la grafica
+  }).then((result) => {
+    if (result.value) {
+      alertaPerzonalizada.fire(
+        'Generado! (>w<)',
+        'Tus datos han sido procesados',
+        'success'
+      )
+      //Aqui escoge que vectores de grafica tomar
+      if (vectores.mariposa)
+        GenerarGraficaMariposa(vectores);
+      else
+        GenerarGrafica(vectores);
+    } else if (
+      result.dismiss === Swal.DismissReason.cancel
+    ) {
+      //Mensaje si no se genera la grafica
+      alertaPerzonalizada.fire(
+        'Cancelado!',
+        'Tus datos no serán procesados :(',
+        'error'
+      )
+    }
+  });
+};
+
+//alerta para blacksholes
 function GenerarAlertaExitoBlackSholes(parametros) {
 
   alertaPerzonalizada.fire({
@@ -153,10 +248,11 @@ function GenerarAlertaExitoBlackSholes(parametros) {
       )
     }
   });
-}
+};
 
+//alerta para el arbol
 function GenerarAlertaExitoArbol(parametros) {
-
+  //Mensaje de alerta para generar o no el arbol
   alertaPerzonalizada.fire({
     title: '¿Estas seguro?',
     text: "Se va a generar el Arbolito",
@@ -165,7 +261,7 @@ function GenerarAlertaExitoArbol(parametros) {
     confirmButtonText: 'Si, generar!',
     cancelButtonText: 'No, cancelar!',
     reverseButtons: true
-
+    //Mensaje si es generado el arbol
   }).then((result) => {
     if (result.value) {
       alertaPerzonalizada.fire(
@@ -173,6 +269,7 @@ function GenerarAlertaExitoArbol(parametros) {
         'Tus datos han sido procesados',
         'success'
       )
+      //Mensaje si no se genera el arbol, reinicia el formulario, borra la tabla y oculta la prima
       GenerarArbol(parametros);
     } else if (
       result.dismiss === Swal.DismissReason.cancel
@@ -187,10 +284,11 @@ function GenerarAlertaExitoArbol(parametros) {
       )
     }
   });
-}
+};
 
-//
+// funcion que genera el arbol
 function GenerarArbol(parametros) {
+  //Parametros necesarios para facilitar el calculo de las primas y demas cosas xD
   parametros.deltaT = (parametros.T / parametros.pasos) / 12;
   parametros.i = Math.exp(-(parametros.tasa / 100) * parametros.deltaT);
   parametros.ProbabilidadAlza = ((Math.exp((parametros.tasa / 100) * parametros.deltaT) - parametros.d) / (parametros.u - parametros.d));
@@ -202,9 +300,10 @@ function GenerarArbol(parametros) {
   Operaciones.CrearEstructura(parametros, matrixGrafica);
   Operaciones.CalcularSpots(matrixSpots, parametros);
   const matrixPrimas = new Array(parametros.middle);
-
+  //Si la opcion es europea entra aqui y se dirige a calcularPrimaEuropea (Operaciones.js)
   if (parametros.opcion === "Europea")
     Operaciones.CalcularPrimaEuropea(matrixSpots, matrixPrimas, parametros);
+  //se dirige a calcularPrimaAmericana (Operaciones.js)
   else
     Operaciones.CalcularPrimaAmericana(matrixSpots, matrixPrimas, parametros);
 
@@ -219,7 +318,7 @@ function GenerarArbol(parametros) {
     let filaMatriz = matrixGrafica[i];
     let filaSpot = matrixSpots[i];
     let filaPrima = matrixPrimas[i];
-    // recorro cada fila
+    // recorro cada fila de la matriz
     for (let j = 0; j < filaMatriz.length; j++) {
       let columna = fila.insertCell();
       columna.style.width = "40px";
@@ -234,21 +333,21 @@ function GenerarArbol(parametros) {
         </button>
         </div>`;
         contador++;
-      }
+      };
 
-    }
+    };
     contador = 0;
-  }
-  // habilitar el campo con el valor de la prima(F)
+  };
+  // habilitar el campo con el valor de la prima(F) en la pantalla principal
   let prima = document.getElementById("prima");
   let temp = matrixPrimas[0];
   prima.innerText = `Prima(F): ${temp[0].toFixed(4)}`;
   prima.style.display = "block";
-}
+};
 
-
-// 
+// funcion que calcula BlackSholes
 function CalcularBlackSholes(parametros) {
+  //Calculo de los parametros adicionales a partir de los ingresados por el usuario
   let p1 = Math.log(parametros.spot / parametros.strike);
   let p2 = (parametros.tasa / 100) + ((parametros.volatilidad / 100) ** 2) / 2;
   let p3 = (parametros.volatilidad / 100) * Math.sqrt(parametros.T / 12);
@@ -265,64 +364,275 @@ function CalcularBlackSholes(parametros) {
 
   Validaciones.MostrarAgregarCampo("d1", `d1: ${parametros.d1.toFixed(4)}`);
   Validaciones.MostrarAgregarCampo("d2", `d2: ${parametros.d2.toFixed(4)}`);
-
+  //muestra el resultado de la opcion, call o put
   if (parametros.pos.includes("Call"))
     Validaciones.MostrarAgregarCampo("put-call", `call: ${parametros.call.toFixed(4)}`);
   else
     Validaciones.MostrarAgregarCampo("put-call", `put: ${parametros.put}`);
-}
+};
 
-function GenerarGrafica(parametros) {
-  const vector = Operaciones.CalcularLabeles(parametros, 1.00);
-  const pendiente = Operaciones.CalcularPendiente(vector);
-  const pyg = Operaciones.CalcularPyg(vector, parametros);
+//Genera la grafica, estan las series (pendiente, pyg, suma) 
+function GenerarGrafica(vectores) {
 
-  let chart = new Chartist.Line('.ct-chart', {
-    // Naming the series with the series object array notation
+  new Chartist.Line('.ct-chart', {
     series: [{
       name: 'series-1',
-      data: pendiente,
+      data: vectores.pendiente,
     }, {
       name: 'series-2',
-      data: pyg,
+      data: vectores.pyg,
     }, {
       name: 'series-3',
-      data: Operaciones.SumarVectores(pendiente, pyg, parametros.strike),
+      data: vectores.suma
     }]
-  }, {
-    fullWidth: true,
-    // Within the series options you can use the series names
-    // to specify configuration that will only be used for the
-    // specific series.
-    series: {
-      'series-1': {
-        //lineSmooth: Chartist.Interpolation.step()
+  },
+    {
+      axisX: {
+        type: Chartist.AutoScaleAxis,
+        onlyInteger: true
+      
       },
-      'series-2': {
-        //lineSmooth: Chartist.Interpolation.simple(),
-        showArea: true
-      },
-      'series-3': {
-        showPoint: false
+      axisY: {
+        type: Chartist.AutoScaleAxis,
+        onlyInteger: true,
       }
-    }
-  }, [
-    // You can even use responsive configuration overrides to
-    // customize your series configuration even further!
+    },
+    {
+      fullWidth: true,
+      series: {
+        'series-1': {
+          lineSmooth: Chartist.Interpolation.step(),
+          showPoint: false
+        },
+        'series-2': {
+          lineSmooth: Chartist.Interpolation.step(),
+          showPoint: false
+        },
+        'series-3': {
+          lineSmooth: Chartist.Interpolation.step(),
+          showPoint: false
+        }
+      }
+    }, [
     ['screen and (max-width: 500px)', {
       series: {
         'series-1': {
-          lineSmooth: Chartist.Interpolation.none()
+          lineSmooth: Chartist.Interpolation.step(),
+          showPoint: false
         },
         'series-2': {
-          lineSmooth: Chartist.Interpolation.none(),
-          showArea: false
+          lineSmooth: Chartist.Interpolation.step(),
+          showPoint: false
         },
         'series-3': {
-          lineSmooth: Chartist.Interpolation.none(),
-          showPoint: true
+          lineSmooth: Chartist.Interpolation.step(),
+          showPoint: false
         }
       }
     }]
   ]);
+
+};
+
+//Genera la grafica, estan las series (pendiente, pyg, suma) para mariposas
+function GenerarGraficaMariposa(vectores) {
+
+  new Chartist.Line('.ct-chart', {
+    series: [{
+      name: 'series-1',
+      data: vectores.pendiente,
+    }, {
+      name: 'series-2',
+      data: vectores.pyg,
+    }, {
+      name: 'series-3',
+      data: vectores.suma
+    },
+    {
+      name: 'series-4',
+      data: vectores.mariposa
+    }]
+  },
+    {
+      axisX: {
+        type: Chartist.AutoScaleAxis,
+        onlyInteger: true
+      },
+      axisY: {
+        type: Chartist.AutoScaleAxis,
+        onlyInteger: true
+      }
+    },
+    {
+      fullWidth: true,
+      series: {
+        'series-1': {
+          lineSmooth: Chartist.Interpolation.step(),
+          showPoint: false
+        },
+        'series-2': {
+          lineSmooth: Chartist.Interpolation.step(),
+          showPoint: false
+        },
+        'series-3': {
+          lineSmooth: Chartist.Interpolation.step(),
+          showPoint: false
+        },
+        'series-4': {
+          lineSmooth: Chartist.Interpolation.step(),
+          showPoint: false
+        }
+      }
+    }, [
+    ['screen and (max-width: 500px)', {
+      series: {
+        'series-1': {
+          lineSmooth: Chartist.Interpolation.step(),
+        },
+        'series-2': {
+          lineSmooth: Chartist.Interpolation.step(),
+        },
+        'series-3': {
+          lineSmooth: Chartist.Interpolation.step(),
+        },
+        'series-4': {
+          lineSmooth: Chartist.Interpolation.step(),
+        }
+      }
+    }]
+  ]);
+
+};
+//Crea los vectores de las graficas
+function crearVectoresGraficas(parametros, selectGrafica, vectores) {
+  switch (selectGrafica) {
+    case 1://Writing a coverage call
+      vectores.base = Operaciones.CalcularBase(parametros, 5.00);
+      vectores.pendiente = Operaciones.CalcularPendiente(vectores.base, parametros);
+      vectores.pyg = Operaciones.CalcularPygCortoCall(vectores.base, parametros, parametros.spot - parametros.strike1);
+      vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
+      vectores.mensaje = "Recuerda: El spot debe ser mayor al strike";
+      Validaciones.MostrarCampo("graficas-label","block");
+      Validaciones.MostrarNombreColor("Largo subyacente","Corto call","Writing a coverage call");
+      break;
+    case 2://Reverse of a writing coverage
+      vectores.base = Operaciones.CalcularBase(parametros, 5.00);
+      vectores.pendiente = Operaciones.CalcularPendienteInversa(vectores.base);
+      vectores.pyg = Operaciones.CalcularPygLargoCall(vectores.base, parametros, parametros.spot - parametros.strike1);
+      vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
+      vectores.mensaje = "Recuerda: El strike debe ser mayor al spot";
+      Validaciones.MostrarCampo("graficas-label","block");
+      Validaciones.MostrarNombreColor("Corto subyacente","Largo call","Reverse of a writing coverage");
+      break;
+    case 3://Protective put strategy
+      vectores.base = Operaciones.CalcularBase(parametros, 5.00);
+      vectores.pendiente = Operaciones.CalcularPendiente(vectores.base);
+      vectores.pyg = Operaciones.CalcularPygLargoPut(vectores.base, parametros, parametros.strike1 - parametros.spot);
+      vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
+      vectores.mensaje = "Recuerda: El spot debe ser mayor al strike";
+      Validaciones.MostrarCampo("graficas-label","block");
+      Validaciones.MostrarNombreColor("Largo subyacente","Largo put","Protective put strategy");
+      break;
+    case 4://Reverse of a protective put
+      vectores.base = Operaciones.CalcularBase(parametros, 5.00);
+      vectores.pendiente = Operaciones.CalcularPendienteInversa(vectores.base);
+      vectores.pyg = Operaciones.CalcularPygCortoPut(vectores.base, parametros, parametros.strike1 - parametros.spot);
+      vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
+      vectores.mensaje = "Recuerda: El strike debe ser mayor al spot";
+      Validaciones.MostrarCampo("graficas-label","block");
+      Validaciones.MostrarNombreColor("Corto subyacente","Corto put","Reverse of a protective put");
+      break;
+    case 5://Bull spread call
+      vectores.base = Operaciones.CalcularBase(parametros, 10.00);
+      vectores.pyg = Operaciones.CalcularPygLargoCall(vectores.base, parametros, parametros.spot - parametros.strike1);
+      vectores.pendiente = Operaciones.CalcularPygCortoCallBullS(vectores.base, parametros, parametros.spot - parametros.strike2);
+      vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
+      vectores.mensaje = "Recuerda: El strike 2 debe ser mayor al  strike 1";
+      Validaciones.MostrarCampo("graficas-label","block");
+      Validaciones.MostrarNombreColor("Largo call","Corto call","Bull spread call");
+      break;
+    case 6://Bull spread put
+      vectores.base = Operaciones.CalcularBase(parametros, 10.00);
+      vectores.pyg = Operaciones.CalcularPygLargoPut(vectores.base, parametros, parametros.strike1 - parametros.spot);
+      vectores.pendiente = Operaciones.CalcularPygCortoPutBullS(vectores.base, parametros, parametros.strike2 - parametros.spot);
+      vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
+      vectores.mensaje = "Recuerda: El strike 2 debe ser mayor al  strike 1";
+      Validaciones.MostrarCampo("graficas-label","block");
+      Validaciones.MostrarNombreColor("Largo put","Corto put","Bull spread put");
+      break;
+    case 7://Bear spread call
+      vectores.base = Operaciones.CalcularBase(parametros, 10.00);
+      vectores.pyg = Operaciones.CalcularPygLargoCall(vectores.base, parametros, parametros.spot - parametros.strike1);
+      vectores.pendiente = Operaciones.CalcularPygCortoCallBullS(vectores.base, parametros, parametros.spot - parametros.strike2);
+      vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
+      vectores.mensaje = "Recuerda: El strike 2 debe ser mayor al  strike 1";
+      Validaciones.MostrarCampo("graficas-label","block");
+      Validaciones.MostrarNombreColor("Largo call","Corto call","Bear spread call");
+      break;
+    case 8://Bear spread put
+      vectores.base = Operaciones.CalcularBase(parametros, 10.00);
+      vectores.pyg = Operaciones.CalcularPygLargoPut(vectores.base, parametros, parametros.strike1 - parametros.spot);
+      vectores.pendiente = Operaciones.CalcularPygCortoPutBullS(vectores.base, parametros, parametros.strike2 - parametros.spot);
+      vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
+      vectores.mensaje = "Recuerda: El strike 2 debe ser mayor al  strike 1";
+      Validaciones.MostrarCampo("graficas-label","block");
+      Validaciones.MostrarNombreColor("Largo put","Corto put","Bear spread put");
+      break;
+    case 11://Straddles
+      vectores.base = Operaciones.CalcularBase(parametros, parametros.strike1);
+      vectores.pyg = Operaciones.CalcularPygLargoCall(vectores.base, parametros, parametros.spot - parametros.strike1);
+      vectores.pendiente = Operaciones.CalcularPygLargoPutCombi(vectores.base, parametros, parametros.strike2 - parametros.spot);
+      vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
+      vectores.mensaje = "Recuerda: El strike 1 debe ser igual al  strike 2";
+      Validaciones.MostrarCampo("graficas-label","block");
+      Validaciones.MostrarNombreColor("Largo call","Largo put","Straddles");
+      break;
+    case 12://Strips
+      vectores.base = Operaciones.CalcularBase(parametros, parametros.strike1);
+      vectores.pyg = Operaciones.CalcularPygLargoCall(vectores.base, parametros, parametros.spot - parametros.strike1);
+      vectores.pendiente = Operaciones.CalcularPygLargoPutCombi2(vectores.base, parametros, parametros.strike2 - parametros.spot);
+      vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
+      vectores.mensaje = "Recuerda: El strike 1 debe ser igual al  strike 2";
+      Validaciones.MostrarCampo("graficas-label","block");
+      Validaciones.MostrarNombreColor("Largo call","2 Largo put","Strips");
+      break;
+    case 13://Straps
+      vectores.base = Operaciones.CalcularBase(parametros, parametros.strike1);
+      vectores.pyg = Operaciones.CalcularPygLargoCallCombi(vectores.base, parametros, parametros.spot - parametros.strike1);
+      vectores.pendiente = Operaciones.CalcularPygLargoPutCombi(vectores.base, parametros, parametros.strike2 - parametros.spot);
+      vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
+      vectores.mensaje = "Recuerda: El strike 1 debe ser igual al  strike 2";
+      Validaciones.MostrarCampo("graficas-label","block");
+      Validaciones.MostrarNombreColor("2 Largo call","Largo put","Straps");
+      break;
+    case 14://Strangles
+      vectores.base = Operaciones.CalcularBase(parametros, parametros.strike1);
+      vectores.pyg = Operaciones.CalcularPygLargoCall(vectores.base, parametros, parametros.spot - parametros.strike1);
+      vectores.pendiente = Operaciones.CalcularPygLargoPutCombi(vectores.base, parametros, parametros.strike2 - parametros.spot);
+      vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
+      vectores.mensaje = "Recuerda: El strike 1 debe ser mayor al  strike 2";
+      Validaciones.MostrarCampo("graficas-label","block");
+      Validaciones.MostrarNombreColor("Largo call","Largo put","Strangles");
+      break;
+    case 9://Butterfly spread call
+      vectores.base = Operaciones.CalcularBase(parametros, parametros.strike3);
+      vectores.pendiente = Operaciones.CalcularPygCortoCallMariposa(vectores.base, parametros, parametros.spot - parametros.strike2);
+      vectores.pyg = Operaciones.CalcularPygLargoCall(vectores.base, parametros, parametros.spot - parametros.strike1);
+      vectores.mariposa = Operaciones.CalcularPygLargoCallMariposa(vectores.base, parametros, parametros.spot - parametros.strike3);
+      vectores.suma = Operaciones.SumarVectoresMariposa(vectores.pendiente, vectores.pyg, vectores.mariposa);
+      vectores.mensaje = "Recuerda: strike 1 < strike 2 < strike 3";
+      Validaciones.MostrarCampo("graficas-label","block");
+      Validaciones.MostrarNombreColor("2 Corto call","Largo call a k1","Butterfly spread call","Largo call a k3");
+      break;
+    case 10://Butterfly spread put
+      vectores.base = Operaciones.CalcularBase(parametros, parametros.strike3);
+      vectores.pendiente = Operaciones.CalcularPygCortoPutMariposa(vectores.base, parametros,parametros.strike2 - parametros.spot);
+      vectores.pyg = Operaciones.CalcularPygLargoPut(vectores.base, parametros,parametros.strike1 - parametros.spot);
+      vectores.mariposa = Operaciones.CalcularPygLargoPutMariposa(vectores.base, parametros,parametros.strike3 - parametros.spot);
+      vectores.suma = Operaciones.SumarVectoresMariposa(vectores.pendiente, vectores.pyg, vectores.mariposa);
+      vectores.mensaje = "Recuerda: strike 1 < strike 2 < strike 3";
+      Validaciones.MostrarCampo("graficas-label","block");
+      Validaciones.MostrarNombreColor("2 Corto put","Largo put a k1","Butterfly spread put","Largo put a k3");
+      break;
+  }
 }

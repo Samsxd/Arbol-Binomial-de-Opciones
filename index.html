@@ -42,6 +42,29 @@
         #global {
             overflow-x: scroll;
         }
+
+        .ct-series-a .ct-line,
+        .ct-series-a .ct-point {
+            stroke: blue;
+            stroke-width: 5px;
+        }
+
+        .ct-series-b .ct-line,
+        .ct-series-b .ct-point {
+            stroke: red;
+            stroke-width: 5px;
+        }
+
+        .ct-series-c .ct-line,
+        .ct-series-c .ct-point {
+            stroke:lightseagreen;
+            stroke-width: 5px;
+        }
+        .ct-series-d .ct-line,
+        .ct-series-d .ct-point {
+            stroke:indigo;
+            stroke-width: 5px;
+        }
     </style>
 
 </head>
@@ -86,13 +109,58 @@
                             <label class="input-group-text" for="inputGroupSelect01">Tipo gráfica</label>
                         </div>
                         <select onchange="CambioDeGrafica()" class="custom-select" id="grafica">
-                            <option selected>Seleccionar...</option>
+                            <option value="0" selected>Seleccionar...</option>
                             <option value="1">writing a coverage call</option>
-                            <option value="2">grafica perrona2</option>
-                            <option value="3">grafica perrona3</option>
-                            <option value="4">grafica perrona4</option>
+                            <option value="2">reverse of a writing coverage</option>
+                            <option value="3">protective put estrategy</option>
+                            <option value="4">reverse of a protective put</option>
+                            <option value="5">bull spread (call)</option>
+                            <option value="6">bull spread (put)</option>
+                            <option value="7">bear spread (call)</option>
+                            <option value="8">bear spread (put)</option>
+                            <option value="9">butterfly spread (call)</option>
+                            <option value="10">butterfly spread (put)</option>
+                            <option value="11">straddles</option>
+                            <option value="12">strips</option>
+                            <option value="13">straps</option>
+                            <option value="14">strangles</option>
                         </select>
                     </div>
+                    <div id="grafica-spreads-combi" style="display: none;">
+                        <!--Strike 1 -->
+                        <div class="input-group input-group-sm mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="inputGroup-sizing-sm">Strike 1</span>
+                            </div>
+                            <input required type="number" id="strike1" min="0.1" step="0.0001" class="form-control"
+                                aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+                        </div>
+                        <!--Strike 2 -->
+                        <div class="input-group input-group-sm mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="inputGroup-sizing-sm">Strike 2</span>
+                            </div>
+                            <input required type="number" id="strike2" min="0.1" step="0.0001" class="form-control"
+                                aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+                        </div>
+                        <!--Strike 3 -->
+                        <div id="strike mariposa" class="input-group input-group-sm mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="inputGroup-sizing-sm">Strike 3</span>
+                            </div>
+                            <input required type="number" id="strike3" min="0.1" step="0.0001" class="form-control"
+                                aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+                        </div>
+                        <!--Spot  -->
+                        <div class="input-group input-group-sm mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" id="inputGroup-sizing-sm">Spot</span>
+                            </div>
+                            <input required type="number" id="spot_" min="0.1" step="0.0001" class="form-control"
+                                aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+                        </div>
+                    </div>
+                    
                     <!--Spot  -->
                     <div id="spot-div" class="input-group input-group-sm mb-3">
                         <div class="input-group-prepend">
@@ -109,6 +177,41 @@
                         </div>
                         <input required type="number" id="strike" min="0.1" step="0.0001" class="form-control"
                             aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm">
+                    </div>
+                    <!--color de la linea --> 
+                    <div id="graficas-label" style="display: none;" >
+                        <!-- linea 1 -->
+                        <div class="input-group input-group-sm mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" style="background: blue;" id="inputGroup-sizing-sm"></span>
+                            </div>
+                            <span  id="linea1" class="form-control"
+                                aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"></span>
+                        </div>
+                        <!--Linea 2 -->
+                        <div class="input-group input-group-sm mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" style="background:red;" id="inputGroup-sizing-sm"></span>
+                            </div>
+                            <span  id="linea2" class="form-control"
+                                aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"></span>
+                        </div>
+                        <!--Linea 3 -->
+                        <div id="strike mariposa" class="input-group input-group-sm mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" style="background:lightseagreen;" id="inputGroup-sizing-sm"></span>
+                            </div>
+                            <span  id="linea3" class="form-control"
+                                aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"></span>
+                        </div>
+                        <!--Linea 4 -->
+                        <div id="lineaMariposa" class="input-group input-group-sm mb-3" style="display: none;">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text" style="background:indigo;" id="inputGroup-sizing-sm"></span>
+                            </div>
+                            <span  id="linea4"class="form-control"
+                                aria-label="Sizing example input" aria-describedby="inputGroup-sizing-sm"></span>
+                        </div>
                     </div>
 
                     <!-- u && d -->
@@ -218,7 +321,7 @@
             <!--contenedor del segundo formulario  -->
             <div id="global" class="container-fluid col-8 bg-light rounded-top">
                 <!--Grafica  -->
-                <div id="graficador-div" class="ct-chart ct-perfect-fourth"></div>
+                <div id="graficador-div" class="ct-chart ct-perfect-fourth" style="display: none;"></div>
                 <!--d1  -->
                 <div id="d1-div" class="input-group input-group-sm mb-3" style="display: none;">
                     <div class="inputGroup-sizing-sm">
