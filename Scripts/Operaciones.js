@@ -29,8 +29,8 @@ Operaciones.ObtenerParametro = function () {
 
 // crea una matriz n x m dado la cantidad de pasos con el valor de *
 Operaciones.crearMatriz = function (parametros, matrix) {
-    parametros.size = parametros.pasos * 3;
-    parametros.middle = Math.floor(parametros.size / 2);
+    parametros.size = parametros.pasos * 3; 
+    parametros.middle = Math.floor(parametros.size / 2); 
     parametros.middle = parametros.pasos + 1 === parametros.middle ? parametros.middle : parametros.pasos + 1;
     let size_ = parametros.size % 2 === 0 ? 1 : 0;
     let size = parametros.size % 2 === 0 ? 2 : 3;
@@ -84,8 +84,8 @@ Operaciones.CalcularSpots = function (matrix, parametros) {
     matrix.push(tempMx);
     tempMx = [];
     //Este for prueba para ver si multiplica por u o por d dado el caso, hasta el numero de pasos dados
-    for (let i = 1; i < parametros.middle; i++) {
-        for (let j = 0; j < i + 1; j++) {
+    for (let i = 1; i < parametros.middle; i++) { //Filas
+        for (let j = 0; j < i + 1; j++) { //columnas
             let valor = parametros.spot * (parametros.d ** (i - j)) * (parametros.u ** (j));
             tempMx.push(valor);
         }

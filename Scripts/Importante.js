@@ -368,7 +368,7 @@ function CalcularBlackSholes(parametros) {
   if (parametros.pos.includes("Call"))
     Validaciones.MostrarAgregarCampo("put-call", `call: ${parametros.call.toFixed(4)}`);
   else
-    Validaciones.MostrarAgregarCampo("put-call", `put: ${parametros.put}`);
+    Validaciones.MostrarAgregarCampo("put-call", `put: ${parametros.put.toFixed(4)}`);
 };
 
 //Genera la grafica, estan las series (pendiente, pyg, suma) 
@@ -507,7 +507,7 @@ function GenerarGraficaMariposa(vectores) {
 function crearVectoresGraficas(parametros, selectGrafica, vectores) {
   switch (selectGrafica) {
     case 1://Writing a coverage call
-      vectores.base = Operaciones.CalcularBase(parametros, 5.00);
+      vectores.base = Operaciones.CalcularBase(parametros, 20.00);
       vectores.pendiente = Operaciones.CalcularPendiente(vectores.base, parametros);
       vectores.pyg = Operaciones.CalcularPygCortoCall(vectores.base, parametros, parametros.spot - parametros.strike1);
       vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
@@ -516,7 +516,7 @@ function crearVectoresGraficas(parametros, selectGrafica, vectores) {
       Validaciones.MostrarNombreColor("Largo subyacente","Corto call","Writing a coverage call");
       break;
     case 2://Reverse of a writing coverage
-      vectores.base = Operaciones.CalcularBase(parametros, 5.00);
+      vectores.base = Operaciones.CalcularBase(parametros, 20.00);
       vectores.pendiente = Operaciones.CalcularPendienteInversa(vectores.base);
       vectores.pyg = Operaciones.CalcularPygLargoCall(vectores.base, parametros, parametros.spot - parametros.strike1);
       vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
@@ -525,7 +525,7 @@ function crearVectoresGraficas(parametros, selectGrafica, vectores) {
       Validaciones.MostrarNombreColor("Corto subyacente","Largo call","Reverse of a writing coverage");
       break;
     case 3://Protective put strategy
-      vectores.base = Operaciones.CalcularBase(parametros, 5.00);
+      vectores.base = Operaciones.CalcularBase(parametros, 20.00);
       vectores.pendiente = Operaciones.CalcularPendiente(vectores.base);
       vectores.pyg = Operaciones.CalcularPygLargoPut(vectores.base, parametros, parametros.strike1 - parametros.spot);
       vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
@@ -534,7 +534,7 @@ function crearVectoresGraficas(parametros, selectGrafica, vectores) {
       Validaciones.MostrarNombreColor("Largo subyacente","Largo put","Protective put strategy");
       break;
     case 4://Reverse of a protective put
-      vectores.base = Operaciones.CalcularBase(parametros, 5.00);
+      vectores.base = Operaciones.CalcularBase(parametros, 20.00);
       vectores.pendiente = Operaciones.CalcularPendienteInversa(vectores.base);
       vectores.pyg = Operaciones.CalcularPygCortoPut(vectores.base, parametros, parametros.strike1 - parametros.spot);
       vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
@@ -543,7 +543,7 @@ function crearVectoresGraficas(parametros, selectGrafica, vectores) {
       Validaciones.MostrarNombreColor("Corto subyacente","Corto put","Reverse of a protective put");
       break;
     case 5://Bull spread call
-      vectores.base = Operaciones.CalcularBase(parametros, 10.00);
+      vectores.base = Operaciones.CalcularBase(parametros, 20.00);
       vectores.pyg = Operaciones.CalcularPygLargoCall(vectores.base, parametros, parametros.spot - parametros.strike1);
       vectores.pendiente = Operaciones.CalcularPygCortoCallBullS(vectores.base, parametros, parametros.spot - parametros.strike2);
       vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
@@ -552,7 +552,7 @@ function crearVectoresGraficas(parametros, selectGrafica, vectores) {
       Validaciones.MostrarNombreColor("Largo call","Corto call","Bull spread call");
       break;
     case 6://Bull spread put
-      vectores.base = Operaciones.CalcularBase(parametros, 10.00);
+      vectores.base = Operaciones.CalcularBase(parametros, 20.00);
       vectores.pyg = Operaciones.CalcularPygLargoPut(vectores.base, parametros, parametros.strike1 - parametros.spot);
       vectores.pendiente = Operaciones.CalcularPygCortoPutBullS(vectores.base, parametros, parametros.strike2 - parametros.spot);
       vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
@@ -561,7 +561,7 @@ function crearVectoresGraficas(parametros, selectGrafica, vectores) {
       Validaciones.MostrarNombreColor("Largo put","Corto put","Bull spread put");
       break;
     case 7://Bear spread call
-      vectores.base = Operaciones.CalcularBase(parametros, 10.00);
+      vectores.base = Operaciones.CalcularBase(parametros, 20.00);
       vectores.pyg = Operaciones.CalcularPygLargoCall(vectores.base, parametros, parametros.spot - parametros.strike1);
       vectores.pendiente = Operaciones.CalcularPygCortoCallBullS(vectores.base, parametros, parametros.spot - parametros.strike2);
       vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
@@ -570,7 +570,7 @@ function crearVectoresGraficas(parametros, selectGrafica, vectores) {
       Validaciones.MostrarNombreColor("Largo call","Corto call","Bear spread call");
       break;
     case 8://Bear spread put
-      vectores.base = Operaciones.CalcularBase(parametros, 10.00);
+      vectores.base = Operaciones.CalcularBase(parametros, 20.00);
       vectores.pyg = Operaciones.CalcularPygLargoPut(vectores.base, parametros, parametros.strike1 - parametros.spot);
       vectores.pendiente = Operaciones.CalcularPygCortoPutBullS(vectores.base, parametros, parametros.strike2 - parametros.spot);
       vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
