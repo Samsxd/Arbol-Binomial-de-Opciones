@@ -33,10 +33,13 @@ Operaciones.crearMatriz = function (parametros, matrix) {
     parametros.middle = Math.floor(parametros.size / 2); 
     parametros.middle = parametros.pasos + 1 === parametros.middle ? parametros.middle : parametros.pasos + 1;
     let size_ = parametros.size % 2 === 0 ? 1 : 0;
+    // en caso de que sea pasos == 1 repara el tamaño de la matriz
     let size = parametros.size % 2 === 0 ? 2 : 3;
 
     let tempMx = new Array();
     for (let i = 0; i < parametros.middle; i++) {
+        // parametros.size + size_ - parametros.pasos + size = a parametros.size siempre y cuando cumpla
+        // parametros.size es par si no es parametros.size - 1; en caso de que pasos sea menor a 3 se ajusta con la holgura
         for (let j = 0; j < parametros.size + size_ - parametros.pasos + size; j++) {
             tempMx.push('*');
         }

@@ -44,7 +44,7 @@ function CambioDeGrafica() {
   //Permite habilitar los campos necesarios para el tipo de grafica ingresada
   switch (selectGrafica.selectedIndex) {
     //spot y strike para opciones y activo subyacente (trading con opciones y subyacente)
-    case 1: 
+    case 1:
     case 2:
     case 3:
     case 4:
@@ -117,7 +117,7 @@ function Calcular() {
       let selectGrafica = document.getElementById("grafica");
       //Selecciona las graficas trading con opciones y subyacente
       if (selectGrafica.selectedIndex === 0)
-      mensaje = "Escoge al menos un tipo de grafica"
+        mensaje = "Escoge al menos un tipo de grafica"
       else if (selectGrafica.selectedIndex > 0 && selectGrafica.selectedIndex < 5)
         mensaje = Validaciones.ValidarFormluarioGraficasSyK(parametros, decimal);
       //Selecciona las graficas para las mariposas
@@ -362,13 +362,21 @@ function CalcularBlackSholes(parametros) {
   parametros.call = parametros.spot * parametros.Nd1 - parametros.strike * parametros.i * parametros.Nd2;
   parametros.put = parametros.strike * parametros.i * parametros.Nmenosd2 - parametros.spot * parametros.Nmenosd1;
 
-  Validaciones.MostrarAgregarCampo("d1", `d1: ${parametros.d1.toFixed(4)}`);
-  Validaciones.MostrarAgregarCampo("d2", `d2: ${parametros.d2.toFixed(4)}`);
   //muestra el resultado de la opcion, call o put
-  if (parametros.pos.includes("Call"))
+  if (parametros.pos.includes("Call")) {
     Validaciones.MostrarAgregarCampo("put-call", `call: ${parametros.call.toFixed(4)}`);
-  else
+    Validaciones.MostrarAgregarCampo("d1", `d1: ${parametros.d1.toFixed(4)}`);
+    Validaciones.MostrarAgregarCampo("d2", `d2: ${parametros.d2.toFixed(4)}`);
+    Validaciones.MostrarAgregarCampo("Nd1", `N(d1): ${parametros.Nd1.toFixed(4)}`);
+    Validaciones.MostrarAgregarCampo("Nd2", `N(d2): ${parametros.Nd2.toFixed(4)}`);
+  }
+  else {
     Validaciones.MostrarAgregarCampo("put-call", `put: ${parametros.put.toFixed(4)}`);
+    Validaciones.MostrarAgregarCampo("d1", `-d1: ${-1 * parametros.d1.toFixed(4)}`);
+    Validaciones.MostrarAgregarCampo("d2", `-d2: ${-1 * parametros.d2.toFixed(4)}`);
+    Validaciones.MostrarAgregarCampo("Nd1", `N(-d1): ${parametros.Nmenosd1.toFixed(4)}`);
+    Validaciones.MostrarAgregarCampo("Nd2", `N(-d2): ${parametros.Nmenosd2.toFixed(4)}`);
+  }
 };
 
 //Genera la grafica, estan las series (pendiente, pyg, suma) 
@@ -390,7 +398,7 @@ function GenerarGrafica(vectores) {
       axisX: {
         type: Chartist.AutoScaleAxis,
         onlyInteger: true
-      
+
       },
       axisY: {
         type: Chartist.AutoScaleAxis,
@@ -512,8 +520,8 @@ function crearVectoresGraficas(parametros, selectGrafica, vectores) {
       vectores.pyg = Operaciones.CalcularPygCortoCall(vectores.base, parametros, parametros.spot - parametros.strike1);
       vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
       vectores.mensaje = "Recuerda: El spot debe ser mayor al strike";
-      Validaciones.MostrarCampo("graficas-label","block");
-      Validaciones.MostrarNombreColor("Largo subyacente","Corto call","Writing a coverage call");
+      Validaciones.MostrarCampo("graficas-label", "block");
+      Validaciones.MostrarNombreColor("Largo subyacente", "Corto call", "Writing a coverage call");
       break;
     case 2://Reverse of a writing coverage
       vectores.base = Operaciones.CalcularBase(parametros, 20.00);
@@ -521,8 +529,8 @@ function crearVectoresGraficas(parametros, selectGrafica, vectores) {
       vectores.pyg = Operaciones.CalcularPygLargoCall(vectores.base, parametros, parametros.spot - parametros.strike1);
       vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
       vectores.mensaje = "Recuerda: El strike debe ser mayor al spot";
-      Validaciones.MostrarCampo("graficas-label","block");
-      Validaciones.MostrarNombreColor("Corto subyacente","Largo call","Reverse of a writing coverage");
+      Validaciones.MostrarCampo("graficas-label", "block");
+      Validaciones.MostrarNombreColor("Corto subyacente", "Largo call", "Reverse of a writing coverage");
       break;
     case 3://Protective put strategy
       vectores.base = Operaciones.CalcularBase(parametros, 20.00);
@@ -530,8 +538,8 @@ function crearVectoresGraficas(parametros, selectGrafica, vectores) {
       vectores.pyg = Operaciones.CalcularPygLargoPut(vectores.base, parametros, parametros.strike1 - parametros.spot);
       vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
       vectores.mensaje = "Recuerda: El spot debe ser mayor al strike";
-      Validaciones.MostrarCampo("graficas-label","block");
-      Validaciones.MostrarNombreColor("Largo subyacente","Largo put","Protective put strategy");
+      Validaciones.MostrarCampo("graficas-label", "block");
+      Validaciones.MostrarNombreColor("Largo subyacente", "Largo put", "Protective put strategy");
       break;
     case 4://Reverse of a protective put
       vectores.base = Operaciones.CalcularBase(parametros, 20.00);
@@ -539,8 +547,8 @@ function crearVectoresGraficas(parametros, selectGrafica, vectores) {
       vectores.pyg = Operaciones.CalcularPygCortoPut(vectores.base, parametros, parametros.strike1 - parametros.spot);
       vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
       vectores.mensaje = "Recuerda: El strike debe ser mayor al spot";
-      Validaciones.MostrarCampo("graficas-label","block");
-      Validaciones.MostrarNombreColor("Corto subyacente","Corto put","Reverse of a protective put");
+      Validaciones.MostrarCampo("graficas-label", "block");
+      Validaciones.MostrarNombreColor("Corto subyacente", "Corto put", "Reverse of a protective put");
       break;
     case 5://Bull spread call
       vectores.base = Operaciones.CalcularBase(parametros, 20.00);
@@ -548,8 +556,8 @@ function crearVectoresGraficas(parametros, selectGrafica, vectores) {
       vectores.pendiente = Operaciones.CalcularPygCortoCallBullS(vectores.base, parametros, parametros.spot - parametros.strike2);
       vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
       vectores.mensaje = "Recuerda: El strike 2 debe ser mayor al  strike 1";
-      Validaciones.MostrarCampo("graficas-label","block");
-      Validaciones.MostrarNombreColor("Largo call","Corto call","Bull spread call");
+      Validaciones.MostrarCampo("graficas-label", "block");
+      Validaciones.MostrarNombreColor("Largo call", "Corto call", "Bull spread call");
       break;
     case 6://Bull spread put
       vectores.base = Operaciones.CalcularBase(parametros, 20.00);
@@ -557,8 +565,8 @@ function crearVectoresGraficas(parametros, selectGrafica, vectores) {
       vectores.pendiente = Operaciones.CalcularPygCortoPutBullS(vectores.base, parametros, parametros.strike2 - parametros.spot);
       vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
       vectores.mensaje = "Recuerda: El strike 2 debe ser mayor al  strike 1";
-      Validaciones.MostrarCampo("graficas-label","block");
-      Validaciones.MostrarNombreColor("Largo put","Corto put","Bull spread put");
+      Validaciones.MostrarCampo("graficas-label", "block");
+      Validaciones.MostrarNombreColor("Largo put", "Corto put", "Bull spread put");
       break;
     case 7://Bear spread call
       vectores.base = Operaciones.CalcularBase(parametros, 20.00);
@@ -566,8 +574,8 @@ function crearVectoresGraficas(parametros, selectGrafica, vectores) {
       vectores.pendiente = Operaciones.CalcularPygCortoCallBullS(vectores.base, parametros, parametros.spot - parametros.strike2);
       vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
       vectores.mensaje = "Recuerda: El strike 2 debe ser mayor al  strike 1";
-      Validaciones.MostrarCampo("graficas-label","block");
-      Validaciones.MostrarNombreColor("Largo call","Corto call","Bear spread call");
+      Validaciones.MostrarCampo("graficas-label", "block");
+      Validaciones.MostrarNombreColor("Largo call", "Corto call", "Bear spread call");
       break;
     case 8://Bear spread put
       vectores.base = Operaciones.CalcularBase(parametros, 20.00);
@@ -575,8 +583,8 @@ function crearVectoresGraficas(parametros, selectGrafica, vectores) {
       vectores.pendiente = Operaciones.CalcularPygCortoPutBullS(vectores.base, parametros, parametros.strike2 - parametros.spot);
       vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
       vectores.mensaje = "Recuerda: El strike 2 debe ser mayor al  strike 1";
-      Validaciones.MostrarCampo("graficas-label","block");
-      Validaciones.MostrarNombreColor("Largo put","Corto put","Bear spread put");
+      Validaciones.MostrarCampo("graficas-label", "block");
+      Validaciones.MostrarNombreColor("Largo put", "Corto put", "Bear spread put");
       break;
     case 11://Straddles
       vectores.base = Operaciones.CalcularBase(parametros, parametros.strike1);
@@ -584,8 +592,8 @@ function crearVectoresGraficas(parametros, selectGrafica, vectores) {
       vectores.pendiente = Operaciones.CalcularPygLargoPutCombi(vectores.base, parametros, parametros.strike2 - parametros.spot);
       vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
       vectores.mensaje = "Recuerda: El strike 1 debe ser igual al  strike 2";
-      Validaciones.MostrarCampo("graficas-label","block");
-      Validaciones.MostrarNombreColor("Largo call","Largo put","Straddles");
+      Validaciones.MostrarCampo("graficas-label", "block");
+      Validaciones.MostrarNombreColor("Largo call", "Largo put", "Straddles");
       break;
     case 12://Strips
       vectores.base = Operaciones.CalcularBase(parametros, parametros.strike1);
@@ -593,8 +601,8 @@ function crearVectoresGraficas(parametros, selectGrafica, vectores) {
       vectores.pendiente = Operaciones.CalcularPygLargoPutCombi2(vectores.base, parametros, parametros.strike2 - parametros.spot);
       vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
       vectores.mensaje = "Recuerda: El strike 1 debe ser igual al  strike 2";
-      Validaciones.MostrarCampo("graficas-label","block");
-      Validaciones.MostrarNombreColor("Largo call","2 Largo put","Strips");
+      Validaciones.MostrarCampo("graficas-label", "block");
+      Validaciones.MostrarNombreColor("Largo call", "2 Largo put", "Strips");
       break;
     case 13://Straps
       vectores.base = Operaciones.CalcularBase(parametros, parametros.strike1);
@@ -602,8 +610,8 @@ function crearVectoresGraficas(parametros, selectGrafica, vectores) {
       vectores.pendiente = Operaciones.CalcularPygLargoPutCombi(vectores.base, parametros, parametros.strike2 - parametros.spot);
       vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
       vectores.mensaje = "Recuerda: El strike 1 debe ser igual al  strike 2";
-      Validaciones.MostrarCampo("graficas-label","block");
-      Validaciones.MostrarNombreColor("2 Largo call","Largo put","Straps");
+      Validaciones.MostrarCampo("graficas-label", "block");
+      Validaciones.MostrarNombreColor("2 Largo call", "Largo put", "Straps");
       break;
     case 14://Strangles
       vectores.base = Operaciones.CalcularBase(parametros, parametros.strike1);
@@ -611,8 +619,8 @@ function crearVectoresGraficas(parametros, selectGrafica, vectores) {
       vectores.pendiente = Operaciones.CalcularPygLargoPutCombi(vectores.base, parametros, parametros.strike2 - parametros.spot);
       vectores.suma = Operaciones.SumarVectores(vectores.pendiente, vectores.pyg);
       vectores.mensaje = "Recuerda: El strike 1 debe ser mayor al  strike 2";
-      Validaciones.MostrarCampo("graficas-label","block");
-      Validaciones.MostrarNombreColor("Largo call","Largo put","Strangles");
+      Validaciones.MostrarCampo("graficas-label", "block");
+      Validaciones.MostrarNombreColor("Largo call", "Largo put", "Strangles");
       break;
     case 9://Butterfly spread call
       vectores.base = Operaciones.CalcularBase(parametros, parametros.strike3);
@@ -621,18 +629,18 @@ function crearVectoresGraficas(parametros, selectGrafica, vectores) {
       vectores.mariposa = Operaciones.CalcularPygLargoCallMariposa(vectores.base, parametros, parametros.spot - parametros.strike3);
       vectores.suma = Operaciones.SumarVectoresMariposa(vectores.pendiente, vectores.pyg, vectores.mariposa);
       vectores.mensaje = "Recuerda: strike 1 < strike 2 < strike 3";
-      Validaciones.MostrarCampo("graficas-label","block");
-      Validaciones.MostrarNombreColor("2 Corto call","Largo call a k1","Butterfly spread call","Largo call a k3");
+      Validaciones.MostrarCampo("graficas-label", "block");
+      Validaciones.MostrarNombreColor("2 Corto call", "Largo call a k1", "Butterfly spread call", "Largo call a k3");
       break;
     case 10://Butterfly spread put
       vectores.base = Operaciones.CalcularBase(parametros, parametros.strike3);
-      vectores.pendiente = Operaciones.CalcularPygCortoPutMariposa(vectores.base, parametros,parametros.strike2 - parametros.spot);
-      vectores.pyg = Operaciones.CalcularPygLargoPut(vectores.base, parametros,parametros.strike1 - parametros.spot);
-      vectores.mariposa = Operaciones.CalcularPygLargoPutMariposa(vectores.base, parametros,parametros.strike3 - parametros.spot);
+      vectores.pendiente = Operaciones.CalcularPygCortoPutMariposa(vectores.base, parametros, parametros.strike2 - parametros.spot);
+      vectores.pyg = Operaciones.CalcularPygLargoPut(vectores.base, parametros, parametros.strike1 - parametros.spot);
+      vectores.mariposa = Operaciones.CalcularPygLargoPutMariposa(vectores.base, parametros, parametros.strike3 - parametros.spot);
       vectores.suma = Operaciones.SumarVectoresMariposa(vectores.pendiente, vectores.pyg, vectores.mariposa);
       vectores.mensaje = "Recuerda: strike 1 < strike 2 < strike 3";
-      Validaciones.MostrarCampo("graficas-label","block");
-      Validaciones.MostrarNombreColor("2 Corto put","Largo put a k1","Butterfly spread put","Largo put a k3");
+      Validaciones.MostrarCampo("graficas-label", "block");
+      Validaciones.MostrarNombreColor("2 Corto put", "Largo put a k1", "Butterfly spread put", "Largo put a k3");
       break;
   }
 }
